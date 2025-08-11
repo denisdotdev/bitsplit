@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  bitcoinAddress String?
+  avatarUrl String?
+  preferredUnit String @default("BTC")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  groupMemberships GroupMember[]
+  expenses         Expense[]
+  settlements      Settlement[]
+  paidExpenses     Expense[] @relation("ExpensePayer")
+
+  @@map("users")
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members  GroupMember[]
+  expenses Expense[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  id      String @id @default(cuid())
+  userId  String
+  groupId String
+  role    String @default("member")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+  @@map("group_members")
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  description String
+  amount      Float
+  currency    String   @default("BTC")
+  paidById    String
+  groupId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  paidBy User  @relation("ExpensePayer", fields: [paidById], references: [id])
+  group  Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  creator User @relation(fields: [paidById], references: [id])
+
+  splits ExpenseSplit[]
+
+  @@map("expenses")
+}
+
+model ExpenseSplit {
+  id        String @id @default(cuid())
+  expenseId String
+  userId    String
+  amount    Float
+  settled   Boolean @default(false)
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+
+  @@unique([expenseId, userId])
+  @@map("expense_splits")
+}
+
+model Settlement {
+  id            String   @id @default(cuid())
+  fromUserId    String
+  toUserId      String
+  amount        Float
+  currency      String   @default("BTC")
+  txHash        String?
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+
+  fromUser User @relation(fields: [fromUserId], references: [id])
+
+  @@map("settlements")
+}
