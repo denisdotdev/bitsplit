@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useIntl } from 'react-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar } from '@/components/ui/avatar'
@@ -10,6 +11,8 @@ import CreateGroupModal from '@/components/CreateGroupModal'
 import AddExpenseModal from '@/components/AddExpenseModal'
 import SettleDebtsModal from '@/components/SettleDebtsModal'
 import GroupMembersModal from '@/components/GroupMembersModal'
+import LanguageToggle from '@/components/LanguageToggle'
+import ThemeToggle from '@/components/ThemeToggle'
 
 interface User {
   id: string
@@ -55,6 +58,7 @@ interface Expense {
 }
 
 export default function Home() {
+  const intl = useIntl()
   const [user, setUser] = useState<User | null>(null)
   const [groups, setGroups] = useState<Group[]>([])
   const [expenses, setExpenses] = useState<Expense[]>([])
@@ -166,18 +170,24 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse">Loading...</div>
+        <div className="animate-pulse">{intl.formatMessage({ id: 'actions.loading' })}</div>
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-          <div className="flex items-center justify-center mb-8">
-            <Bitcoin className="h-8 w-8 text-orange-500 mr-2" />
-            <h1 className="text-2xl font-bold text-gray-900">BitSplit</h1>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-full max-w-md p-8 bg-card rounded-lg shadow-md">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center">
+              <Bitcoin className="h-8 w-8 text-orange-500 mr-2" />
+              <h1 className="text-2xl font-bold text-foreground">{intl.formatMessage({ id: 'app.name' })}</h1>
+            </div>
+            <div className="flex items-center space-x-2">
+              <ThemeToggle />
+              <LanguageToggle />
+            </div>
           </div>
           
           <div className="flex mb-6">
@@ -186,21 +196,21 @@ export default function Home() {
               onClick={() => setAuthMode('login')}
               className="flex-1 mr-2"
             >
-              Login
+              {intl.formatMessage({ id: 'auth.login' })}
             </Button>
             <Button
               variant={authMode === 'register' ? 'primary' : 'ghost'}
               onClick={() => setAuthMode('register')}
               className="flex-1 ml-2"
             >
-              Register
+              {intl.formatMessage({ id: 'auth.register' })}
             </Button>
           </div>
 
           <form onSubmit={handleAuth} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+              <label className="block text-sm font-medium text-foreground mb-1">
+                {intl.formatMessage({ id: 'auth.email' })}
               </label>
               <Input
                 type="email"
@@ -212,8 +222,8 @@ export default function Home() {
             
             {authMode === 'register' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Username
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  {intl.formatMessage({ id: 'auth.username' })}
                 </label>
                 <Input
                   type="text"
@@ -225,8 +235,8 @@ export default function Home() {
             )}
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
+              <label className="block text-sm font-medium text-foreground mb-1">
+                {intl.formatMessage({ id: 'auth.password' })}
               </label>
               <Input
                 type="password"
@@ -237,7 +247,7 @@ export default function Home() {
             </div>
             
             <Button type="submit" className="w-full">
-              {authMode === 'login' ? 'Login' : 'Register'}
+              {authMode === 'login' ? intl.formatMessage({ id: 'auth.login' }) : intl.formatMessage({ id: 'auth.register' })}
             </Button>
           </form>
         </div>
@@ -246,13 +256,13 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
+    <div className="min-h-screen bg-background">
+      <header className="bg-card shadow border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <Bitcoin className="h-8 w-8 text-orange-500 mr-2" />
-              <h1 className="text-xl font-bold text-gray-900">BitSplit</h1>
+              <h1 className="text-xl font-bold text-foreground">{intl.formatMessage({ id: 'app.name' })}</h1>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
@@ -261,7 +271,13 @@ export default function Home() {
                   alt={user.username} 
                   size="sm"
                 />
-                <span className="text-gray-700">Welcome, {user.username}</span>
+                <span className="text-foreground">
+                  {intl.formatMessage({ id: 'auth.welcome' }, { username: user.username })}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <ThemeToggle />
+                <LanguageToggle />
               </div>
               <Button
                 variant="ghost"
@@ -269,10 +285,10 @@ export default function Home() {
                 className="flex items-center"
               >
                 <Settings className="h-4 w-4 mr-2" />
-                Settings
+                {intl.formatMessage({ id: 'navigation.settings' })}
               </Button>
               <Button variant="outline" onClick={handleLogout}>
-                Logout
+                {intl.formatMessage({ id: 'auth.logout' })}
               </Button>
             </div>
           </div>
@@ -282,15 +298,15 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+            <div className="bg-card rounded-lg shadow p-6">
+              <h2 className="text-lg font-medium text-foreground mb-4 flex items-center">
                 <Receipt className="h-5 w-5 mr-2" />
-                Recent Expenses
+                {intl.formatMessage({ id: 'dashboard.recentExpenses' })}
               </h2>
               {expenses.length > 0 ? (
                 <div className="space-y-3">
                   {expenses.slice(0, 5).map((expense) => (
-                    <div key={expense.id} className="border rounded-lg p-3">
+                    <div key={expense.id} className="border border-border rounded-lg p-3">
                       <div className="flex justify-between items-start">
                         <div className="flex items-start space-x-3">
                           <Avatar 
@@ -299,17 +315,23 @@ export default function Home() {
                             size="sm"
                           />
                           <div>
-                            <h3 className="font-medium text-gray-900">{expense.description}</h3>
-                            <p className="text-sm text-gray-500">
-                              Paid by {expense.paidBy.username} in {expense.group.name}
+                            <h3 className="font-medium text-foreground">{expense.description}</h3>
+                            <p className="text-sm text-muted-foreground">
+                              {intl.formatMessage(
+                                { id: 'dashboard.paidBy' }, 
+                                { 
+                                  username: expense.paidBy.username, 
+                                  groupName: expense.group.name 
+                                }
+                              )}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium text-gray-900">
+                          <p className="font-medium text-foreground">
                             {formatCurrency(expense.amount, (user?.preferredUnit as 'BTC' | 'sats') || 'BTC')}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-muted-foreground">
                             {new Date(expense.createdAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -318,26 +340,29 @@ export default function Home() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No expenses yet</p>
+                <p className="text-muted-foreground text-center py-8">{intl.formatMessage({ id: 'dashboard.noExpensesYet' })}</p>
               )}
             </div>
           </div>
 
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+            <div className="bg-card rounded-lg shadow p-6">
+              <h2 className="text-lg font-medium text-foreground mb-4 flex items-center">
                 <Users className="h-5 w-5 mr-2" />
-                Your Groups
+                {intl.formatMessage({ id: 'dashboard.yourGroups' })}
               </h2>
               {groups.length > 0 ? (
                 <div className="space-y-3">
                   {groups.map((group) => (
-                    <div key={group.id} className="border rounded-lg p-3">
+                    <div key={group.id} className="border border-border rounded-lg p-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="font-medium text-gray-900">{group.name}</h3>
-                          <p className="text-sm text-gray-500">
-                            {group.members.length} member{group.members.length !== 1 ? 's' : ''}
+                          <h3 className="font-medium text-foreground">{group.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {intl.formatMessage(
+                              { id: group.members.length === 1 ? 'dashboard.member' : 'dashboard.members_plural' },
+                              { count: group.members.length }
+                            )}
                           </p>
                         </div>
                         <Button
@@ -346,21 +371,21 @@ export default function Home() {
                           onClick={() => handleManageMembers(group)}
                           className="text-xs"
                         >
-                          Members
+                          {intl.formatMessage({ id: 'dashboard.members' })}
                         </Button>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-4">No groups yet</p>
+                <p className="text-muted-foreground text-center py-4">{intl.formatMessage({ id: 'dashboard.noGroupsYet' })}</p>
               )}
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+            <div className="bg-card rounded-lg shadow p-6">
+              <h2 className="text-lg font-medium text-foreground mb-4 flex items-center">
                 <ArrowLeftRight className="h-5 w-5 mr-2" />
-                Quick Actions
+                {intl.formatMessage({ id: 'dashboard.quickActions' })}
               </h2>
               <div className="space-y-3">
                 <Button 
@@ -368,7 +393,7 @@ export default function Home() {
                   variant="outline"
                   onClick={() => setShowCreateGroup(true)}
                 >
-                  Create Group
+                  {intl.formatMessage({ id: 'actions.createGroup' })}
                 </Button>
                 <Button 
                   className="w-full" 
@@ -376,7 +401,7 @@ export default function Home() {
                   onClick={() => setShowAddExpense(true)}
                   disabled={groups.length === 0}
                 >
-                  Add Expense
+                  {intl.formatMessage({ id: 'actions.addExpense' })}
                 </Button>
                 <Button 
                   className="w-full" 
@@ -384,7 +409,7 @@ export default function Home() {
                   onClick={() => setShowSettleDebts(true)}
                   disabled={groups.length === 0}
                 >
-                  Settle Debts
+                  {intl.formatMessage({ id: 'actions.settleDebts' })}
                 </Button>
                 <Button 
                   className="w-full" 
@@ -392,7 +417,7 @@ export default function Home() {
                   onClick={() => window.location.href = '/settings'}
                 >
                   <Settings className="h-4 w-4 mr-2" />
-                  Settings
+                  {intl.formatMessage({ id: 'navigation.settings' })}
                 </Button>
               </div>
             </div>
